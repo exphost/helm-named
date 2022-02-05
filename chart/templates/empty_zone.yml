@@ -17,3 +17,4 @@ data:
     ;
               IN  NS     dns1.__ZONE__.
     dns1 IN A 127.0.0.2
+    dns1-extdns IN TXT "heritage=external-dns,external-dns/owner=default,external-dns/resource=ingress/default/placeholder"
