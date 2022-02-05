@@ -25,12 +25,21 @@ spec:
           command:
             - sh
             - -c
-            - "test -e /var/lib/bind/db.{{ .Values.domain }} || sed 's/__ZONE__/{{ .Values.domain }}/g' /tpl/zone > /var/lib/bind/db.{{ .Values.domain }}"
+            - "test -e /var/lib/bind/db.{{ .Values.domain }} || { sed 's/__ZONE__/{{ .Values.domain }}/g' /tpl/zone > /var/lib/bind/db.{{ .Values.domain }}; chown 105:106 /var/lib/bind/db.{{ .Values.domain }}; }"
           volumeMounts:
             - name: named-lib
               mountPath: /var/lib/bind
             - name: named-empty-zone
               mountPath: /tpl
+        - name: chown-var-lib-bind
+          image: busybox
+          command:
+            - sh
+            - -c
+            - "chown 105:106 /var/lib/bind"
+          volumeMounts:
+            - name: named-lib
+              mountPath: /var/lib/bind
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
