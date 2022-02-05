@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: named-empty-zone
+  namespace: named
+data:
+  zone: |
+    $ORIGIN __ZONE__.
+    $TTL 86400
+    @         IN  SOA  dns1.__ZONE__.  hostmaster.exphost.pl. (
+                  1  ; serial
+                  600       ; refresh after 10 minutess
+                  600        ; retry after 10 minutes
+                  604800      ; expire after 1 week
+                  600 )     ; minimum TTL of 10 minutes
+    ;
+    ;
+              IN  NS     dns1.__ZONE__.
+    dns1 IN A 127.0.0.2

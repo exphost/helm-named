@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "chart.fullname" . }}-master
+  labels:
+    {{- include "chart.selectorLabels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "chart.selectorLabels" . | nindent 6 }}
+  serviceName: {{ include "chart.fullname" . }}-master
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "chart.selectorLabels" . | nindent 8 }}
+    spec:
+      initContainers:
+        - name: zone-creator
+          image: busybox
+          command:
+            - sh
+            - -c
+            - "test -e /var/lib/bind/db.{{ .Values.domain }} || sed 's/__ZONE__/{{ .Values.domain }}/g' /tpl/zone > /var/lib/bind/db.{{ .Values.domain }}"
+          volumeMounts:
+            - name: named-lib
+              mountPath: /var/lib/bind
+            - name: named-empty-zone
+              mountPath: /tpl
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: dns-tcp
+              containerPort: 53
+              protocol: TCP
+            - name: dns-udp
+              containerPort: 53
+              protocol: UDP
+          #livenessProbe:
+          #  tcpSocket:
+          #    port: http
+          #readinessProbe:
+          #  tcpSocket:
+          #    port: http
+          volumeMounts:
+            - name: named-lib
+              mountPath: /var/lib/bind
+            - name: named-conf
+              mountPath: /etc/bind/
+              readOnly: true
+      volumes:
+        - name: named-conf
+          secret:
+            secretName: named-conf
+        - name: named-empty-zone
+          configMap:
+            name: named-empty-zone
+            items:
+              - key: zone
+                path: zone
+  volumeClaimTemplates:
+  - metadata:
+      name: named-lib
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 200Mi
