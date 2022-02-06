@@ -9,12 +9,13 @@ data:
     $TTL 86400
     @         IN  SOA  dns1.__ZONE__.  hostmaster.exphost.pl. (
                   1  ; serial
-                  600       ; refresh after 10 minutess
-                  600        ; retry after 10 minutes
+                  120       ; refresh after 2 minutess
+                  120       ; retry after 2 minutes
                   604800      ; expire after 1 week
-                  600 )     ; minimum TTL of 10 minutes
+                  60 )     ; minimum TTL of 1 minutes
     ;
     ;
               IN  NS     dns1.__ZONE__.
+    _ext-dns IN TXT "heritage=external-dns,external-dns/owner=k8s___ZONE__,external-dns/resource=ingress/default/placeholder"
     dns1 IN A 127.0.0.2
-    dns1-extdns IN TXT "heritage=external-dns,external-dns/owner=default,external-dns/resource=ingress/default/placeholder"
+    _ext-dns.dns1 IN TXT "heritage=external-dns,external-dns/owner=k8s___ZONE__,external-dns/resource=ingress/default/placeholder"
