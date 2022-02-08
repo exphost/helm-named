@@ -4,9 +4,9 @@ metadata:
   name: {{ include "chart.fullname" . }}-tcp
   labels:
     {{- include "chart.selectorLabels" . | nindent 4 }}
-  annotations:
-     metallb.universe.tf/allow-shared-ip: ingress-ip
-     external-dns.alpha.kubernetes.io/hostname: dns1.{{ .Values.domain }}
+#  annotations:
+#     metallb.universe.tf/allow-shared-ip: ingress-ip
+#     external-dns.alpha.kubernetes.io/hostname: dns1.{{ .Values.domain }}
 spec:
   type: LoadBalancer
   ports:
